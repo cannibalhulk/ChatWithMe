@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { TChannel } from "./ChannelsView";
-import { MessagesSquare, Share2 } from "lucide-react";
+import { MessagesSquare, Share2, Send } from "lucide-react";
 import {
   Modal,
   ModalContent,
@@ -10,6 +10,7 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
+  Textarea
 } from "@nextui-org/react";
 import { useSelectedLayoutSegments } from "next/navigation";
 import {
@@ -46,7 +47,7 @@ function ChannelView({ params }: { params: PageProps }) {
   }, [id]);
 
   return (
-    <div className="w-full flex flex-col min-h-screen">
+    <div className="w-full flex flex-col justify-between min-h-screen pb-2">
       <div className="px-4 py-4 flex justify-between sticky backdrop-blur-md bg-gradient-to-b rounded-br-medium rounded-bl-medium fixed-position dark:from-black/80 from-white to-white/40 dark:to-white/30 w-full">
         <div className="flex flex-col">
           <div className="inline-flex text-center">
@@ -94,7 +95,19 @@ function ChannelView({ params }: { params: PageProps }) {
           </Modal>
         </div>
       </div>
-      <div className=""></div>
+      <div className="fixed w-[80%] bottom-0 left-[10%] right-[10%] flex justify-self-end items-end">
+        <div className="w-full bg-[#1b1b1b] rounded-xl p-1 pb-0 flex flex-row justify-between  relative">
+          <Textarea className="relative"
+          variant="faded"
+          placeholder="Your words here..."
+          classNames={{
+          }}
+          maxRows={5} />
+          <Button  isIconOnly className="ml-2 h-20 relative" variant="faded" aria-label="send-messages" >
+            <Send/>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
