@@ -62,16 +62,14 @@ export default async function RootLayout({
       <body className={geist.className}>
         <RecoilRoot>
           <SessionProvider  session={session}>
-            <DynamicAblyProvider>  {/**`input must not start with prefix url` bug fixed */}
-              <NextUIProv>
-                <NextThemesProvider attribute="class" defaultTheme="dark">
-                  <Navbar />
-                  {children}
-                  <Analytics />
-                  <SpeedInsights />
-                </NextThemesProvider>
-              </NextUIProv>
-            </DynamicAblyProvider>
+            <NextUIProv>
+              <NextThemesProvider attribute="class" defaultTheme="dark">
+                <Navbar />
+                {children}
+                <Analytics />
+                <SpeedInsights />
+              </NextThemesProvider>
+            </NextUIProv>
           </SessionProvider>
         </RecoilRoot>
       </body>
