@@ -62,6 +62,7 @@ export default async function RootLayout({
       <body className={geist.className}>
         <RecoilRoot>
           <SessionProvider  session={session}>
+            <DynamicAblyProvider>
             <NextUIProv>
               <NextThemesProvider attribute="class" defaultTheme="dark">
                 <Navbar />
@@ -70,6 +71,7 @@ export default async function RootLayout({
                 <SpeedInsights />
               </NextThemesProvider>
             </NextUIProv>
+            </DynamicAblyProvider>
           </SessionProvider>
         </RecoilRoot>
       </body>
