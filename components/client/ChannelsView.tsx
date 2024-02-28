@@ -23,7 +23,7 @@ function ChannelsView({ channels }: { channels: TChannel[] }) {
           <Badge  isInvisible={isNewChannel(`${channels.createdAt}`)} content="New" placement="top-left"  color="danger" size="sm">
             <li
               key={channels._id}
-              className="pt-3 bg-gradient-to-br dark:from-[#2f2f2f] dark:via-red-200/10 dark:to-[#ffeffe]/30 flex flex-col space-y-4 min-w-[390px] md:w-[600px] py-2 px-5 rounded-lg border hover:drop-shadow-xl shadow-white transition hover:opacity-70 hover:scale-[0.995]  ease-in-out duration-300 border-[#ffbffb]/30"
+              className="pt-3 bg-gradient-to-br from-neutral-200 via-neutral-500/40 to-stone-400/40 dark:from-[#2f2f2f] dark:via-red-200/10 dark:to-[#ffeffe]/30 flex flex-col space-y-4 min-w-[390px] md:w-[600px] py-2 px-5 rounded-lg border hover:drop-shadow-xl shadow-white transition hover:opacity-70 hover:scale-[0.995]  ease-in-out duration-300 border-[#ffbffb]/30"
             >
               <div className="flex space-y-4 flex-col w-full">
                 <div className="flex justify-between flex-col w-full">
@@ -35,7 +35,7 @@ function ChannelsView({ channels }: { channels: TChannel[] }) {
                       variant="faded"
                       color="warning"
                       classNames={{
-                        content: "text-[12px] sm:text-[15px]",
+                        content: "text-[12px] light:text-red-400 sm:text-[15px]",
                       }}
                     >
                       {channels.category}

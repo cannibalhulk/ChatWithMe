@@ -51,12 +51,12 @@ function ChannelView({ params }: { params: PageProps }) {
       <div className="px-4 py-4 flex justify-between sticky backdrop-blur-md bg-gradient-to-b rounded-br-medium rounded-bl-medium fixed-position dark:from-black/80 from-white to-white/40 dark:to-white/30 w-full">
         <div className="flex flex-col">
           <div className="inline-flex text-center">
-            <div className="p-2 bg-gray-800 rounded-full">
+            <div className="p-2 dark:bg-gray-800 rounded-full">
               <MessagesSquare />
             </div>
             <h1 className="ml-3 text-xl">{channelinfo?.chnl_name}</h1>
           </div>
-          <div className="opacity-70 text-base ml-10">
+          <div className="opacity-70 text-base ml-10 line-clamp-1">
             {channelinfo?.chnl_desc}
           </div>
         </div>
@@ -96,15 +96,17 @@ function ChannelView({ params }: { params: PageProps }) {
         </div>
       </div>
       <div className="fixed w-[80%] bottom-0 left-[10%] right-[10%] flex justify-self-end items-end">
-        <div className="w-full bg-[#1b1b1b] rounded-xl p-1 pb-0 flex flex-row justify-between  relative">
+        <div className="w-full bg-stone-300 dark:bg-[#1b1b1b] rounded-xl rounded-b-none p-1 pb-0 flex flex-row justify-between  relative">
           <Textarea className="relative"
           variant="faded"
           placeholder="Your words here..."
           classNames={{
+            input:"lg:text-md font-bold tracking-wide",
+            inputWrapper:"light:border-2 light:border-stone-600"
           }}
           maxRows={5} />
           <Button  isIconOnly className="ml-2 h-20 relative" variant="faded" aria-label="send-messages" >
-            <Send/>
+            <Send />
           </Button>
         </div>
       </div>
