@@ -28,7 +28,7 @@ type BroadcastOptions = Partial<Message> & {
   type?: "message" | "notification";
 };
 
-export const broadcastMessage = async (message: BroadcastOptions) => {
+const broadcastMessage = async (message: BroadcastOptions) => {
   const defaultOptions = {
     date: new Date(),
     type: "message",
