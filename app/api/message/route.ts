@@ -1,20 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as Ably from "ably";
-export type Message = {
-  username: string;
-  date: Date;
-  text: string;
-  // Adding a type will let us display notifications from the server about
-  // connections and such differently than regular messages from users
-  type: "message" | "notification";
-};
+import {} from "ably/react"
+import type { Message } from "@/types/Message";
 
 export async function POST(req: NextRequest) {
-  const { username, message } = await req.json();
+  const { username, message, channel } = await req.json();
   if (req.method === "POST" && typeof username && typeof message === "string") {
     try {
-      await broadcastMessage({ username: username, text: message });
-      return NextResponse.json({stat: `Message sent: ${username}: ${message}` },{ status:200});
+      await broadcastMessage({ username: username, text: message }, channel);
+      return NextResponse.json({stat: `Message sent by ${username}: ${message}` },{ status:200});
     } catch (error) {
       return NextResponse.json({ error }, {status:500});
     }
@@ -23,28 +17,32 @@ export async function POST(req: NextRequest) {
   }
 }
 
-type BroadcastOptions = Partial<Message> & {
+type BroadcastOptions = {
+  username: string;
+  text: string;
   date?: Date;
   type?: "message" | "notification";
 };
 
-const broadcastMessage = async (message: BroadcastOptions) => {
-  const defaultOptions = {
-    date: new Date(),
-    type: "message",
-  };
+const broadcastMessage = async ({ username, text, date = new Date(), type = "message" }:
+BroadcastOptions, chnl_name:string) => {
 
-  message = Object.assign({}, defaultOptions, message);
+  const messageObject:Message = {
+    username,
+    date,
+    text,
+    type
+  }
 
   const ably = new Ably.Realtime.Promise(process.env.ABLY_API_KEY!);
 
   await ably.connection.once("connected");
 
-  const channel = ably.channels.get("chat");
+  const channel = ably.channels.get(chnl_name);
 
   // Note: Ably gives you the ability to specify different kinds of events, so a
   // channel can have all sorts of information traveling across it,
   // differentiated by key name. Here, we've just named the ones we're concerned
   // about "message". It could be anything.
-  channel.publish("message", message);
+  await channel.publish({});
 };
