@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
-import * as Ably from "ably"
+import * as Ably from "ably";
 import type { Message } from "@/types/Message";
 import { TChannel } from "./ChannelsView";
 import { useSession } from "next-auth/react";
@@ -13,7 +13,7 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
-  Textarea
+  Textarea,
 } from "@nextui-org/react";
 import { useSelectedLayoutSegments } from "next/navigation";
 import {
@@ -24,7 +24,9 @@ import {
   TwitterShareButton,
   TwitterIcon,
   LinkedinIcon,
-  TelegramIcon
+  TelegramIcon,
+  WhatsappIcon,
+  WhatsappShareButton,
 } from "react-share";
 import ChatInput from "./ChatInput";
 import ChatBox from "./ChatBox";
@@ -34,7 +36,7 @@ interface PageProps {
 }
 
 function ChannelView({ params }: { params: PageProps }) {
-  const {data:session} = useSession();
+  const { data: session } = useSession();
   const { isOpen, onClose, onOpen, onOpenChange } = useDisclosure();
   const [channelinfo, setChannelInfo] = useState<TChannel | null>(null);
 
@@ -47,10 +49,9 @@ function ChannelView({ params }: { params: PageProps }) {
   const [messages, setMessages] = useState([] as Array<Message>);
   const user = session?.user?.name?.split(" ");
   let username = "";
-  if(user){
+  if (user) {
     username = user?.length > 1 ? [user[0]].join("") : user?.join("");
   }
-
 
   const addMessage = (message: Message) => {
     setMessages((prevMessages) =>
@@ -68,7 +69,11 @@ function ChannelView({ params }: { params: PageProps }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, message: text, channel: channelinfo?.chnl_name }),
+        body: JSON.stringify({
+          username,
+          message: text,
+          channel: channelinfo?.chnl_name,
+        }),
       });
     },
     [username, channelinfo]
@@ -89,13 +94,13 @@ function ChannelView({ params }: { params: PageProps }) {
     getChannel();
   }, [id]);
 
-  useEffect(()=>{
+  useEffect(() => {
     let ablyClient: Ably.Types.RealtimePromise;
-    const init = async() => {
+    const init = async () => {
       ablyClient = new Ably.Realtime.Promise({
         authUrl: "/api/token",
       });
-  
+
       await ablyClient.connection.once("connected");
 
       addMessage({
@@ -104,27 +109,27 @@ function ChannelView({ params }: { params: PageProps }) {
         type: "notification",
         date: new Date(),
       });
-  
+
       const chatChannel = ablyClient.channels.get(channelinfo?.chnl_name!);
       setChannel(chatChannel);
       // Incoming messages
-    // We'll be listening for "message", which is the string we chose in
-    // `api/message/route.ts`, but just as a reminder, it could be anything.
-    await chatChannel.subscribe("message", (message: Ably.Types.Message) => {
-      addMessage(message.data as Message);
-    });
-    }
+      // We'll be listening for "message", which is the string we chose in
+      // `api/message/route.ts`, but just as a reminder, it could be anything.
+      await chatChannel.subscribe("message", (message: Ably.Types.Message) => {
+        addMessage(message.data as Message);
+      });
+    };
     init();
 
     return () => {
-      if(channel) {
+      if (channel) {
         channel.unsubscribe();
       }
-      if(ablyClient){
+      if (ablyClient) {
         ablyClient.close();
       }
-    }
-  }, [])
+    };
+  }, []);
 
   useEffect(() => {
     if (username && channel) {
@@ -174,26 +179,56 @@ function ChannelView({ params }: { params: PageProps }) {
               closeButton: "hover:bg-white/5 active:bg-white/10 bg-white/10",
             }}
           >
-            <ModalContent>{(onClose)=>(
-              <>
-                <ModalHeader>Share it with your friends!</ModalHeader>
-                <ModalBody  className="flex flex-row justify-around">
-                  <FacebookShareButton hashtag="#chatapp #chatwme #trend #socialapp #follow" url={location.href}><FacebookIcon size={50} round={true}/></FacebookShareButton> 
-                  <TwitterShareButton hashtags={['chatpp', "chatwme", "trend", "socialapp", "follow", `${channelinfo?.category}`]} url={location.href}><TwitterIcon size={50} round={true}/></TwitterShareButton>
-                  <LinkedinShareButton summary={channelinfo?.chnl_desc} url={location.href}>
-                    <LinkedinIcon round={true} size={50} />
-                  </LinkedinShareButton>
-                  <TelegramShareButton url={location.href} title={channelinfo?.chnl_name}><TelegramIcon size={50} round={true} /></TelegramShareButton>
-                </ModalBody>
-              </>
-            )}</ModalContent>
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader>Share it with your friends!</ModalHeader>
+                  <ModalBody className="flex flex-row justify-around">
+                    <FacebookShareButton
+                      hashtag="#chatapp #chatwme #trend #socialapp #follow"
+                      url={location.href}
+                    >
+                      <FacebookIcon size={50} round={true} />
+                    </FacebookShareButton>
+                    <WhatsappShareButton title={channelinfo?.chnl_name + "| ChatWithMe | Chat With Strangers!"}  url={location.href}>
+                      <WhatsappIcon size={50} round={true} />
+                    </WhatsappShareButton>
+                    <TwitterShareButton
+                      hashtags={[
+                        "chatpp",
+                        "chatwme",
+                        "trend",
+                        "socialapp",
+                        "follow",
+                        `${channelinfo?.category}`,
+                      ]}
+                      url={location.href}
+                    >
+                      <TwitterIcon size={50} round={true} />
+                    </TwitterShareButton>
+                    <LinkedinShareButton
+                      summary={channelinfo?.chnl_desc}
+                      url={location.href}
+                    >
+                      <LinkedinIcon round={true} size={50} />
+                    </LinkedinShareButton>
+                    <TelegramShareButton
+                      url={location.href}
+                      title={channelinfo?.chnl_name}
+                    >
+                      <TelegramIcon size={50} round={true} />
+                    </TelegramShareButton>
+                  </ModalBody>
+                </>
+              )}
+            </ModalContent>
           </Modal>
         </div>
       </div>
       {/* Chat Messages */}
-      <ChatBox messages={messages}/>
+      <ChatBox messages={messages} />
       <div className="fixed w-[80%] bottom-0 left-[10%] right-[10%] flex justify-self-end items-end">
-        <ChatInput submit={sendMessage}/>
+        <ChatInput submit={sendMessage} />
       </div>
     </div>
   );
