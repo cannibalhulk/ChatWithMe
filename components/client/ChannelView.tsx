@@ -1,6 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import * as Ably from "ably"
+import type { Message } from "@/types/Message";
 import { TChannel } from "./ChannelsView";
+import { useSession } from "next-auth/react";
 import { MessagesSquare, Share2, Send } from "lucide-react";
 import {
   Modal,
@@ -23,14 +26,54 @@ import {
   LinkedinIcon,
   TelegramIcon
 } from "react-share";
+import ChatInput from "./ChatInput";
+import ChatBox from "./ChatBox";
 
 interface PageProps {
   id: string;
 }
 
 function ChannelView({ params }: { params: PageProps }) {
+  const {data:session} = useSession();
   const { isOpen, onClose, onOpen, onOpenChange } = useDisclosure();
   const [channelinfo, setChannelInfo] = useState<TChannel | null>(null);
+
+  /**
+   * Only Ably
+   */
+  const [channel, setChannel] =
+    useState<Ably.Types.RealtimeChannelPromise | null>(null);
+
+  const [messages, setMessages] = useState([] as Array<Message>);
+  const user = session?.user?.name?.split(" ");
+  let username = "";
+  if(user){
+    username = user?.length > 1 ? [user[0]].join("") : user?.join("");
+  }
+
+
+  const addMessage = (message: Message) => {
+    setMessages((prevMessages) =>
+      [...prevMessages, message]
+        // limit the history length by only ever keeping the most recent 50
+        // messages, at most
+        .splice(-50)
+    );
+  };
+
+  const sendMessage = useCallback(
+    async (text: string) => {
+      await fetch("/api/message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, message: text, channel: channelinfo?.chnl_name }),
+      });
+    },
+    [username, channelinfo]
+  );
+
   const { id } = params;
   useEffect(() => {
     const getChannel = async () => {
@@ -46,9 +89,61 @@ function ChannelView({ params }: { params: PageProps }) {
     getChannel();
   }, [id]);
 
+  useEffect(()=>{
+    let ablyClient: Ably.Types.RealtimePromise;
+    const init = async() => {
+      ablyClient = new Ably.Realtime.Promise({
+        authUrl: "/api/token",
+      });
+  
+      await ablyClient.connection.once("connected");
+
+      addMessage({
+        username: "Server",
+        text: "Connected to chat! ⚡️",
+        type: "notification",
+        date: new Date(),
+      });
+  
+      const chatChannel = ablyClient.channels.get(channelinfo?.chnl_name!);
+      setChannel(chatChannel);
+      // Incoming messages
+    // We'll be listening for "message", which is the string we chose in
+    // `api/message/route.ts`, but just as a reminder, it could be anything.
+    await chatChannel.subscribe("message", (message: Ably.Types.Message) => {
+      addMessage(message.data as Message);
+    });
+    }
+    init();
+
+    return () => {
+      if(channel) {
+        channel.unsubscribe();
+      }
+      if(ablyClient){
+        ablyClient.close();
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (username && channel) {
+      // This is when we tell Ably our username
+      channel.presence.enter({ username });
+      window.addEventListener("beforeunload", () => channel.presence.leave());
+    }
+
+    return () => {
+      window.removeEventListener(
+        "beforeunload",
+        () => channel && channel.presence.leave()
+      );
+    };
+  }, [username, channel]);
+
   return (
-    <div className="w-full flex flex-col justify-between min-h-screen pb-2">
-      <div className="px-4 py-4 flex justify-between sticky backdrop-blur-md bg-gradient-to-b rounded-br-medium rounded-bl-medium fixed-position dark:from-black/80 from-white to-white/40 dark:to-white/30 w-full">
+    <div className="w-full flex flex-col min-h-screen pb-2">
+      <div className="px-4 py-4 flex justify-between sticky backdrop-blur-md bg-gradient-to-b rounded-br-medium rounded-bl-medium  dark:from-black/80 from-white to-white/40 dark:to-white/30 w-full">
         <div className="flex flex-col">
           <div className="inline-flex text-center">
             <div className="p-2 dark:bg-gray-800 rounded-full">
@@ -95,20 +190,10 @@ function ChannelView({ params }: { params: PageProps }) {
           </Modal>
         </div>
       </div>
+      {/* Chat Messages */}
+      <ChatBox messages={messages}/>
       <div className="fixed w-[80%] bottom-0 left-[10%] right-[10%] flex justify-self-end items-end">
-        <div className="w-full bg-stone-300 dark:bg-[#1b1b1b] rounded-xl rounded-b-none p-1 pb-0 flex flex-row justify-between  relative">
-          <Textarea className="relative"
-          variant="faded"
-          placeholder="Your words here..."
-          classNames={{
-            input:"lg:text-md font-bold tracking-wide",
-            inputWrapper:"light:border-2 light:border-stone-600"
-          }}
-          maxRows={5} />
-          <Button  isIconOnly className="ml-2 h-20 relative" variant="faded" aria-label="send-messages" >
-            <Send />
-          </Button>
-        </div>
+        <ChatInput submit={sendMessage}/>
       </div>
     </div>
   );
