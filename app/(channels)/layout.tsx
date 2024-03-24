@@ -33,7 +33,7 @@ export default async function ChannelLayout({
   const session = await getServerSession();
   return (
     <html lang="en">
-      <body className={geist.className}>
+      <body className={geist.className + " max-w-screen-xl mx-auto"}>
         <SessionProvider basePath="/api/auth" session={session}>
           <DynamicAblyProvider>
             <NextUIProv>

@@ -59,7 +59,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={geist.className}>
+      <body className={geist.className + " max-w-screen-xl mx-auto "}>
         <RecoilRoot>
           <SessionProvider  session={session}>
             <DynamicAblyProvider>
