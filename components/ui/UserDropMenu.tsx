@@ -11,7 +11,7 @@ function UserDropMenu() {
       router.push('/settings')
     }
   return (
-    <Dropdown className="bg-[#403f3f] dark:bg-[#2b2b2b]" placement="bottom-start">
+    <Dropdown className="bg-[#403f3f] dark:bg-[#2b2b2b]" placement="bottom-end">
         <DropdownTrigger>
           <Avatar
             classNames={{

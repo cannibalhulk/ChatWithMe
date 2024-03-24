@@ -33,11 +33,12 @@ function ChannelsPage() {
             input: [
               "bg-transparent",
               "text-black/90 dark:text-white/90",
-              "placeholder:text-default-700/50 dark:placeholder:text-white/60",
+              "focus:placeholder:text-default-700 dark:placeholder:text-white/60",
             ],
             innerWrapper: "bg-transparent",
             inputWrapper: [
               "shadow-xl",
+              "border-2 border-default-300",
               "bg-default-200/50",
               "dark:bg-default/60",
               "backdrop-blur-xl",
@@ -49,6 +50,7 @@ function ChannelsPage() {
               "!cursor-text",
             ],
             base: "sm:w-1/4 w-2/4",
+            
           }}
           placeholder="Type to search..."
           startContent={

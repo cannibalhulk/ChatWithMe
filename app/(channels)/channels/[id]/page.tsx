@@ -34,7 +34,7 @@ export async function generateStaticParams() {
 
 const Page: FC<PageProps> = ({params}) => {
   return (
-    <main className="pt-4 w-4/5 min-h-screen">
+    <main className="pt-none w-4/5 min-h-screen">
       <section className="flex flex-col mt-15">
         <ChannelView params={params}/>
       </section>

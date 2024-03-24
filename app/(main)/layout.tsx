@@ -59,18 +59,18 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={geist.className}>
+      <body className={geist.className + " max-w-screen-xl mx-auto "}>
         <RecoilRoot>
           <SessionProvider  session={session}>
-            <DynamicAblyProvider>  {/**`input must not start with prefix url` bug fixed */}
-              <NextUIProv>
-                <NextThemesProvider attribute="class" defaultTheme="dark">
-                  <Navbar />
-                  {children}
-                  <Analytics />
-                  <SpeedInsights />
-                </NextThemesProvider>
-              </NextUIProv>
+            <DynamicAblyProvider>
+            <NextUIProv>
+              <NextThemesProvider attribute="class" defaultTheme="dark">
+                <Navbar />
+                {children}
+                <Analytics />
+                <SpeedInsights />
+              </NextThemesProvider>
+            </NextUIProv>
             </DynamicAblyProvider>
           </SessionProvider>
         </RecoilRoot>
